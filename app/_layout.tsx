@@ -20,19 +20,20 @@ export const unstable_settings = {
 function AppContent() {
     const { isAuth } = useAuth();
 
-    if (!isAuth) {
-            return (
-                <ThemedView
-                    style={{
-                        flex: 1,
-                        justifyContent: "center",
-                        alignItems: "center",
-                    }}
-                >
-                    <ActivityIndicator size="large" color="blue" />
-                </ThemedView>
-            );
-        }
+    if (isAuth === null) {
+    // идёт проверка авторизации — показываем лоадер
+    return (
+        <ThemedView
+            style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+            }}
+        >
+            <ActivityIndicator size="large" color="blue" />
+        </ThemedView>
+    );
+}
 
     return (
         <Stack screenOptions={{ headerShown: false }}>
