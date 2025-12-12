@@ -11,7 +11,7 @@ type IProps = {
 };
 
 //const MAPTILER_KEY = "L5UfSrsqI9vZSRn5YPXe";
-const MAPTILER_KEY = "";
+const MAPTILER_KEY = "L5UfSrsqI9vZSRn5YPXe";
 
 function Map({ aidPoints }: IProps) {
     const [location, setLocation] = useState<ILocation | null>(null);
@@ -49,10 +49,20 @@ function Map({ aidPoints }: IProps) {
 
         try {
             const { latitude, longitude } = location;
-            const response = await fetch(
-                `https://router.project-osrm.org/route/v1/driving/${longitude},${latitude};${destLon},${destLat}?geometries=geojson`
-            );
-            const data = await response.json();
+
+            const url = `https://router.project-osrm.org/route/v1/driving/${longitude},${latitude};${destLon},${destLat}?geometries=geojson`;
+
+            const response = await fetch(url);
+
+            // Проверяем, что сервер вернул JSON, а не HTML
+            const text = await response.text();
+
+            if (text.startsWith("<")) {
+                console.error("OSRM вернул HTML вместо JSON:", text);
+                return;
+            }
+
+            const data = JSON.parse(text);
 
             if (data.routes && data.routes.length > 0) {
                 const coords = data.routes[0].geometry.coordinates.map(
@@ -62,6 +72,8 @@ function Map({ aidPoints }: IProps) {
                     })
                 );
                 setRouteCoordinates(coords);
+            } else {
+                console.warn("OSRM не вернул маршруты:", data);
             }
         } catch (err) {
             console.error("Ошибка построения маршрута:", err);
@@ -121,9 +133,10 @@ function Map({ aidPoints }: IProps) {
                                 point.location.longitude
                             )
                         }
-                        onCalloutPress={() => router.navigate(`/(protected)/${point.id}`)}
-                    >
-                    </Marker>
+                        onCalloutPress={() =>
+                            router.navigate(`/(protected)/${point.id}`)
+                        }
+                    ></Marker>
                 ))}
 
                 {/* Линия маршрута */}

@@ -142,7 +142,6 @@ const styles = StyleSheet.create({
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "orange",
         gap: 10,
     },
     title: {
