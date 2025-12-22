@@ -9,7 +9,7 @@ export async function createDraftPhoto(body) {
 
 export async function getPhotoById(param:string) {
     const response = apiPrivate.get(`/api/photo/${param}`,{
-                responseType: "arraybuffer",
-            })
+            responseType: "arraybuffer",
+        })
     return response
 }

@@ -15,7 +15,7 @@ export default function TabTwoScreen() {
     const [isLoading, setIsLoading] = useState(false);
     const [code, setCode] = useState("");
     const [formType, setFormType] = useState<"registration" | "verification">(
-        "registration"
+        "verification"
     );
 
     const registrationUserForm = async (

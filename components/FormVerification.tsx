@@ -25,7 +25,7 @@ export default function FormVerification() {
 
     return (
         <ThemedView style={styles.container}>
-            <ThemedText style={styles.title}>Login</ThemedText>
+            <ThemedText style={styles.title}>Verification</ThemedText>
             <TextInput
                 style={styles.input}
                 placeholder="Username"
@@ -35,7 +35,7 @@ export default function FormVerification() {
             />
             
             <ThemedView style={{ gap: 10 }}>
-                <Button title="Login" onPress={onLogin} />
+                <Button title="Finish registration" onPress={onLogin} />
                 <Link href={"/(auth)/registration"} asChild>
                     <Button title="Go to registration" />
                 </Link>

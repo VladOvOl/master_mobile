@@ -5,6 +5,7 @@ import { Button, StyleSheet } from "react-native";
 
 export default function HomeScreen() {
     const { logout } = useAuth();
+    
 
     return (
         <ThemedView style={styles.container}>

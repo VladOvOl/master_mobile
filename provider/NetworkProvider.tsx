@@ -7,13 +7,12 @@ interface NetworkContextType {
   refresh: () => void;
 }
 
-// Создаем контекст
 const NetworkContext = createContext<NetworkContextType>({
   online: null,
   refresh: () => {},
 });
 
-// Провайдер
+
 export const NetworkProvider = ({ children }: { children: ReactNode }) => {
   const [online, setOnline] = useState<boolean | null>(null);
 
@@ -43,5 +42,5 @@ export const NetworkProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Хук для использования
+
 export const useNetwork = () => useContext(NetworkContext);

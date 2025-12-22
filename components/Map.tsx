@@ -1,4 +1,5 @@
 import { ILocation, IPoint } from "@/app/(protected)";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -11,7 +12,8 @@ type IProps = {
 };
 
 //const MAPTILER_KEY = "L5UfSrsqI9vZSRn5YPXe";
-const MAPTILER_KEY = "L5UfSrsqI9vZSRn5YPXe";
+//let MAPTILER_KEY = "nRJJ0GPY5kRZzgtPwvHs";
+let MAPTILER_KEY = "";
 
 function Map({ aidPoints }: IProps) {
     const [location, setLocation] = useState<ILocation | null>(null);
@@ -35,6 +37,10 @@ function Map({ aidPoints }: IProps) {
                 );
                 const { latitude, longitude } = currentLocation.coords;
                 setLocation({ latitude, longitude });
+                await AsyncStorage.setItem(
+                "LOCATION",
+                JSON.stringify({ latitude, longitude }))
+
             } catch (err) {
                 console.error("Ошибка получения текущей позиции:", err);
             } finally {

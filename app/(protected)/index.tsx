@@ -1,8 +1,9 @@
 import Map from "@/components/Map";
-import { ThemedText } from "@/components/themed-text";
+import { IQuery, PointsFilter } from "@/components/PointsFilter";
 import { ThemedView } from "@/components/themed-view";
 import { useNetwork } from "@/provider/NetworkProvider";
 import { getAllAidPoints } from "@/service/map.service";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { Button, StyleSheet } from "react-native";
@@ -16,51 +17,100 @@ export type ILocationTypes = {
 };
 
 export type IPoint = {
-  id: number;
-  name: string;
-  description: string;
-  location: ILocation;
-  address: string | null;
-  locationType: ILocationTypes;
-}
+    id: number;
+    name: string;
+    description: string;
+    location: ILocation;
+    address: string | null;
+    locationType: ILocationTypes;
+};
 
 export type ILocation = {
     latitude: number;
     longitude: number;
 };
 
+const STORAGE_KEY = "AID_POINTS_CACHE";
+
 export default function HomeScreen() {
-
-    const [aidPoints, setAidPoints] = useState<IPoint[]>([])
-
-    const {online} = useNetwork()
+    const [aidPoints, setAidPoints] = useState<IPoint[]>([]);
+    const [query, setQuery] = useState<IQuery>({
+        name: "",
+        locationTypeId: 0,
+        range: 10000,
+        search: false,
+    });
 
     useEffect(() => {
-        getAllPoint()
-    },[])
-
-    const getAllPoint = async() => {
-        try {
-            const response = await getAllAidPoints()
-            setAidPoints(response.data)
-        } catch (error) {
-            console.log("Error",error)
+        if (query.search) {
+            // 👉 загружаешь точки / фильтруешь маркеры
+            fetchPoints(query);
         }
-    }
+    }, [query.search]);
+
+    const { online } = useNetwork();
+
+    useEffect(() => {
+        loadAidPoints();
+    }, [online]);
+
+    const loadAidPoints = async () => {
+        if (online) {
+            await fetchAndSavePoints();
+        } else {
+            await loadPointsFromStorage();
+            console.log("co][");
+        }
+    };
+
+    // 📡 Загружаем с сервера и сохраняем
+    const fetchAndSavePoints = async () => {
+        try {
+            const response = await getAllAidPoints();
+            setAidPoints(response.data);
+
+            await AsyncStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(response.data)
+            );
+        } catch (error) {
+            console.log("Error fetching points", error);
+            await loadPointsFromStorage(); // fallback
+        }
+    };
+
+    // 📦 Загружаем из локального хранилища
+    const loadPointsFromStorage = async () => {
+        try {
+            const cached = await AsyncStorage.getItem(STORAGE_KEY);
+
+            if (cached) {
+                setAidPoints(JSON.parse(cached));
+            }
+            console.log(cached);
+        } catch (error) {
+            console.log("Error loading cached points", error);
+        }
+    };
 
     return (
         <ThemedView>
-            {online === true && 
-                <ThemedView style={{height:'100%'}}>
-                    <Map aidPoints = {aidPoints}/>
-                    <Link href={'/(protected)/create_point'} asChild>
-                        <Link href={'/(protected)/create_point'} asChild>
-                            <Button title="Create new point"/>
+            {online === true && (
+                <ThemedView style={{ height: "100%" }}>
+                    <PointsFilter value={query} onChange={setQuery} />
+                    <Map aidPoints={aidPoints} />
+                    <Link href={"/(protected)/create_point"} asChild>
+                        <Link href={"/(protected)/create_point"} asChild>
+                            <Button title="Create new point" />
                         </Link>
                     </Link>
                 </ThemedView>
-            }
-            {online === false && <ThemedText>NO</ThemedText>}       
+            )}
+            {online === false && (
+                <ThemedView style={{ height: "100%" }}>
+                    <Map aidPoints={aidPoints} />
+                </ThemedView>
+            )}
         </ThemedView>
     );
 }
